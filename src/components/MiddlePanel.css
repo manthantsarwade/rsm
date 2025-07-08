@@ -1719,93 +1719,140 @@
 }
 
 /* Continuous Timeline Container */
-.continuous-timeline-container {
+.excel-timeline-container {
   background: #f7fafc;
   border-radius: 12px;
   padding: 20px;
   margin-top: 20px;
 }
 
-.continuous-timeline-container h4 {
+.excel-timeline-container h4 {
   margin-bottom: 20px;
   color: #2d3748;
   font-size: 1.3rem;
   font-weight: 700;
 }
 
-/* Timeline Layout */
-.timeline-header-row,
-.timeline-project-row,
-.timeline-user-row {
+/* Excel Timeline Table */
+.excel-timeline-table {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(113, 128, 150, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.excel-timeline-table.dragging-over {
+  border-color: #4299e1;
+  box-shadow: 0 6px 20px rgba(66, 153, 225, 0.3);
+}
+
+/* Timeline Header Row */
+.timeline-header-row {
   display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  min-height: 50px;
+  background: linear-gradient(135deg, #4299e1, #63b3ed);
+  color: white;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(113, 128, 150, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: 60px;
   align-items: center;
 }
 
-.timeline-header-row {
-  background: #edf2f7;
-  font-weight: 700;
-  color: #4a5568;
-  border-radius: 8px 8px 0 0;
+/* Timeline Project Row */
+.timeline-project-row {
+  display: flex;
+  background: rgba(56, 178, 172, 0.1);
+  border-left: 4px solid #38b2ac;
+  border-bottom: 2px solid rgba(113, 128, 150, 0.2);
+  min-height: 60px;
+  align-items: center;
 }
 
-.timeline-project-row {
-  background: #e6fffa;
-  border-left: 4px solid #38b2ac;
+/* Timeline User Rows */
+.timeline-users-body {
+  background: white;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 .timeline-user-row {
-  background: #ffffff;
+  display: flex;
+  border-bottom: 1px solid rgba(113, 128, 150, 0.1);
   transition: all 0.3s ease;
+  min-height: 70px;
+  align-items: center;
 }
 
 .timeline-user-row:hover {
-  background: #f7fafc;
+  background: rgba(66, 153, 225, 0.05);
+}
+
+.timeline-user-row:last-child {
+  border-bottom: none;
+}
+
+.timeline-user-row.ending-soon {
+  background: rgba(255, 235, 59, 0.1);
+  border-left: 4px solid #ffd700;
+}
+
+.timeline-user-row.assignment-ended {
+  opacity: 0.6;
+  background: rgba(158, 158, 158, 0.05);
+  border-left: 4px solid #9e9e9e;
 }
 
 .timeline-user-row.dragging {
-  background: #bee3f8;
-  transform: rotate(1deg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: grabbing;
+  transform: rotate(1deg) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 
+/* Timeline Name Column */
 .timeline-name-column {
-  width: 250px;
-  min-width: 250px;
-  padding: 15px;
-  border-right: 1px solid #e2e8f0;
+  width: 300px;
+  flex-shrink: 0;
+  padding: 15px 20px;
+  border-right: 2px solid rgba(113, 128, 150, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+/* Timeline Scale Column */
 .timeline-scale-column {
   flex: 1;
-  display: flex;
+  padding: 10px;
   overflow-x: auto;
+  /* Synchronized scrolling */
 }
 
-/* Project Info in Timeline */
-.project-info-timeline {
+/* Project Timeline Info */
+.project-timeline-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .project-name-timeline {
   font-weight: 700;
   color: #2d3748;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  margin-bottom: 2px;
 }
 
 .project-key-timeline {
   color: #718096;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
-/* User Info in Timeline */
-.user-info-timeline {
+/* User Timeline Info */
+.user-timeline-info {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -1814,172 +1861,314 @@
 .user-name-timeline {
   font-weight: 600;
   color: #2d3748;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
 }
 
 .user-role-timeline {
   color: #718096;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.user-dates-timeline {
+  font-size: 0.75rem;
+  color: #4299e1;
+  font-weight: 500;
+  background: rgba(66, 153, 225, 0.1);
+  padding: 2px 6px;
+  border-radius: 8px;
+  display: inline-block;
 }
 
 .remove-user-btn {
-  background: #fed7d7;
+  background: rgba(245, 87, 108, 0.1);
   color: #e53e3e;
   border: none;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 1.1rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  margin-left: 10px;
+  flex-shrink: 0;
 }
 
 .remove-user-btn:hover {
-  background: #feb2b2;
+  background: rgba(245, 87, 108, 0.2);
   transform: scale(1.1);
 }
 
-/* Timeline Header */
-.continuous-timeline-header {
+/* Excel Timeline Header */
+.excel-timeline-header {
   display: flex;
-  height: 40px;
+  width: 100%;
+  min-width: max-content;
 }
 
 .timeline-header-cell {
   flex: 1;
-  min-width: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
+  padding: 12px 8px;
   font-size: 0.8rem;
   font-weight: 600;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 50px;
+  transition: all 0.3s ease;
 }
 
 .timeline-header-cell:last-child {
   border-right: none;
 }
 
-/* Month Color Alternation */
-.timeline-header-cell.month-1 {
-  background: rgba(66, 153, 225, 0.2);
-  color: #2b6cb0;
+/* Alternating Header Colors */
+.timeline-header-cell.primary {
+  background: rgba(66, 153, 225, 0.15);
 }
 
-.timeline-header-cell.month-2 {
-  background: rgba(72, 187, 120, 0.2);
-  color: #2f855a;
+.timeline-header-cell.secondary {
+  background: rgba(72, 187, 120, 0.15);
 }
 
-/* Project Timeline Cells */
-.continuous-project-bar {
+.timeline-header-cell.weekend {
+  background: rgba(255, 193, 7, 0.25) !important;
+  font-weight: 700;
+}
+
+.timeline-header-cell:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+/* Excel Project Bar */
+.excel-project-bar {
   display: flex;
-  height: 50px;
+  width: 100%;
+  min-width: max-content;
 }
 
 .project-timeline-cell {
   flex: 1;
-  min-width: 30px;
+  height: 50px;
+  border-right: 1px solid rgba(113, 128, 150, 0.1);
   position: relative;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  min-width: 50px;
+  transition: all 0.3s ease;
 }
 
 .project-timeline-cell:last-child {
   border-right: none;
 }
 
-.project-timeline-cell.month-1 {
-  background: rgba(66, 153, 225, 0.1);
+/* Alternating Project Cell Colors */
+.project-timeline-cell.primary {
+  background: rgba(66, 153, 225, 0.2);
 }
 
-.project-timeline-cell.month-2 {
-  background: rgba(72, 187, 120, 0.1);
+.project-timeline-cell.secondary {
+  background: rgba(72, 187, 120, 0.2);
+}
+
+.project-timeline-cell.weekend {
+  background: rgba(255, 193, 7, 0.3) !important;
 }
 
 .project-bar-fill {
   position: absolute;
   top: 15px;
-  left: 2px;
-  right: 2px;
+  left: 4px;
+  right: 4px;
   height: 20px;
   background: linear-gradient(90deg, #38b2ac, #4fd1c7);
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* User Timeline Cells */
-.continuous-user-bar {
+/* Excel User Bar */
+.excel-user-bar {
   display: flex;
-  height: 50px;
+  width: 100%;
+  min-width: max-content;
 }
 
 .user-timeline-cell {
   flex: 1;
-  min-width: 30px;
+  height: 50px;
+  border-right: 1px solid rgba(113, 128, 150, 0.1);
   position: relative;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  transition: all 0.3s ease;
 }
 
 .user-timeline-cell:last-child {
   border-right: none;
 }
 
-.user-timeline-cell.month-1 {
-  background: rgba(66, 153, 225, 0.05);
+/* Alternating User Cell Colors */
+.user-timeline-cell.primary {
+  background: rgba(66, 153, 225, 0.1);
 }
 
-.user-timeline-cell.month-2 {
-  background: rgba(72, 187, 120, 0.05);
+.user-timeline-cell.secondary {
+  background: rgba(72, 187, 120, 0.1);
 }
 
-.user-timeline-cell.active .user-bar-fill {
+.user-timeline-cell.weekend {
+  background: rgba(255, 193, 7, 0.15) !important;
+}
+
+.user-timeline-cell.active.primary {
+  background: rgba(66, 153, 225, 0.2);
+}
+
+.user-timeline-cell.active.secondary {
+  background: rgba(72, 187, 120, 0.2);
+}
+
+.user-timeline-cell.active.weekend {
+  background: rgba(255, 193, 7, 0.25) !important;
+}
+
+.user-bar-segment {
+  width: 90%;
+  height: 35px;
+  background: linear-gradient(135deg, #4299e1, #63b3ed);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(66, 153, 225, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.excel-user-bar.ending-soon .user-bar-segment {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
+}
+
+.excel-user-bar.assignment-ended .user-bar-segment {
+  background: linear-gradient(135deg, #a0aec0, #cbd5e0);
+  box-shadow: 0 2px 6px rgba(160, 174, 192, 0.3);
+}
+
+.user-timeline-cell:hover .user-bar-segment {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+}
+
+/* User Bar Tooltip */
+.user-bar-tooltip {
   position: absolute;
-  top: 15px;
-  left: 2px;
-  right: 2px;
-  height: 20px;
-  background: linear-gradient(90deg, #4299e1, #63b3ed);
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(45, 55, 72, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.continuous-user-bar.ending-soon .user-timeline-cell.active .user-bar-fill {
-  background: linear-gradient(90deg, #ed8936, #f6ad55);
+.user-bar-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(45, 55, 72, 0.95);
 }
 
-.continuous-user-bar.assignment-ended .user-timeline-cell.active .user-bar-fill {
-  background: linear-gradient(90deg, #e53e3e, #fc8181);
+.user-bar-segment:hover .user-bar-tooltip {
+  opacity: 1;
 }
 
-/* Timeline Users Container */
-.timeline-users-container {
-  border-radius: 0 0 8px 8px;
+.tooltip-name {
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #e2e8f0;
 }
 
-.timeline-users-container.dragging-over {
-  background: rgba(66, 153, 225, 0.05);
-}
-
-.empty-timeline-message {
-  display: flex;
-  min-height: 60px;
-  align-items: center;
+.tooltip-role {
+  font-size: 0.7rem;
   color: #a0aec0;
+  margin-bottom: 2px;
+}
+
+.tooltip-dates {
+  font-size: 0.7rem;
+  color: #cbd5e0;
+  font-weight: 500;
+}
+
+/* Empty Timeline Row */
+.empty-timeline-row {
+  display: flex;
+  border-bottom: 1px solid rgba(113, 128, 150, 0.1);
+  min-height: 70px;
+  align-items: center;
+}
+
+.empty-timeline-row .timeline-name-column {
+  background: rgba(248, 250, 252, 0.8);
+  color: #718096;
   font-style: italic;
 }
 
-.drop-zone-message {
-  flex: 1;
+.empty-timeline-message {
   text-align: center;
+  color: #718096;
+  font-style: italic;
   padding: 20px;
-  border: 2px dashed #cbd5e0;
-  border-radius: 8px;
-  margin: 10px;
+  background: rgba(113, 128, 150, 0.05);
+  border-radius: 6px;
+  margin: 8px;
+  border: 1px dashed rgba(113, 128, 150, 0.2);
+  font-size: 0.9rem;
+}
+
+/* Loading States */
+.timeline-loading {
+  height: 30px;
+  background: rgba(113, 128, 150, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  margin: 20px 0;
+}
+
+.loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(66, 153, 225, 0.4), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.no-timeline {
+  text-align: center;
+  padding: 40px 20px;
+  color: #718096;
+  font-style: italic;
+  background: rgba(113, 128, 150, 0.05);
+  border-radius: 12px;
+  border: 2px dashed rgba(113, 128, 150, 0.2);
+  margin: 20px 0;
 }
 
 /* Synchronized User Timeline Bar */

@@ -8,7 +8,49 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
   const [epics, setEpics] = useState([]);
   const [projectTimeline, setProjectTimeline] = useState(null);
   const [loadingEpics, setLoadingEpics] = useState(false);
-  const [timelineView, setTimelineView] = useState('week'); // day, week, month, year
+  const [timelineView, setTimelineView] = useState('day'); // day, week, month, year
+
+  // Dummy data for testing
+  const dummyProjectTimeline = {
+    startDate: '2024-07-05',
+    endDate: '2024-08-30',
+    duration: 56
+  };
+
+  const dummyUsers = [
+    {
+      id: '1',
+      name: 'John Doe',
+      email: 'john@company.com',
+      role: 'Frontend Developer',
+      startDate: '2024-07-09',
+      endDate: '2024-07-20'
+    },
+    {
+      id: '2', 
+      name: 'Jane Smith',
+      email: 'jane@company.com',
+      role: 'Backend Developer',
+      startDate: '2024-07-15',
+      endDate: '2024-08-10'
+    },
+    {
+      id: '3',
+      name: 'Mike Johnson', 
+      email: 'mike@company.com',
+      role: 'UI/UX Designer',
+      startDate: '2024-07-22',
+      endDate: '2024-08-25'
+    },
+    {
+      id: '4',
+      name: 'Sarah Wilson',
+      email: 'sarah@company.com', 
+      role: 'QA Engineer',
+      startDate: '2024-08-01',
+      endDate: '2024-08-28'
+    }
+  ];
 
   // Function to check if user assignment is ending soon (3 days)
   const isAssignmentEndingSoon = (endDate) => {
@@ -42,47 +84,12 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
     
     try {
       setLoadingEpics(true);
-      const projectEpics = await jiraAPI.getEpics(selectedProject.key);
-      setEpics(projectEpics);
+      // For demo, use dummy timeline
+      setProjectTimeline(dummyProjectTimeline);
       
-      // Calculate project timeline from epics
-      if (projectEpics.length > 0) {
-        // Parse dates more carefully to avoid timezone issues
-        const startDates = projectEpics
-          .map(epic => {
-            if (!epic.startDate) return null;
-            // Create date at noon to avoid timezone issues
-            const date = new Date(epic.startDate + 'T12:00:00');
-            return isNaN(date) ? null : date;
-          })
-          .filter(date => date !== null);
-          
-        const endDates = projectEpics
-          .map(epic => {
-            if (!epic.endDate) return null;
-            // Create date at noon to avoid timezone issues
-            const date = new Date(epic.endDate + 'T12:00:00');
-            return isNaN(date) ? null : date;
-          })
-          .filter(date => date !== null);
-        
-        if (startDates.length > 0 && endDates.length > 0) {
-          const projectStart = new Date(Math.min(...startDates));
-          const projectEnd = new Date(Math.max(...endDates));
-          
-          const timeline = {
-            startDate: projectStart.toISOString().split('T')[0],
-            endDate: projectEnd.toISOString().split('T')[0],
-            duration: Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24)) + 1
-          };
-          
-          setProjectTimeline(timeline);
-          
-          // Update parent component with timeline data
-          if (onUpdateProjectTimeline) {
-            onUpdateProjectTimeline(selectedProject.id, timeline);
-          }
-        }
+      // Update parent component with timeline data
+      if (onUpdateProjectTimeline) {
+        onUpdateProjectTimeline(selectedProject.id, dummyProjectTimeline);
       }
     } catch (error) {
       console.error('Error fetching epics:', error);
@@ -100,15 +107,13 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
     return (
       <div className="middle-panel">
         <div className="empty-state">
-          <div className="empty-icon">Target</div>
+          <div className="empty-icon">🎯</div>
           <h3>Select a Project</h3>
-          <p>Choose a project from the right panel to view its details and manage resources</p>
+          <p>Choose a project from the right panel to view its timeline and manage resources</p>
         </div>
       </div>
     );
   }
-
-  const assignedUsers = assignments[selectedProject.id] || [];
 
   return (
     <div className="middle-panel">
@@ -128,142 +133,122 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
         </div>
       </div>
 
-      {/* Enhanced Project Timeline Section */}
+      {/* Timeline View Controls */}
+      <div className="timeline-view-controls">
+        <div className="view-toggle-group">
+          {['day', 'week', 'month', 'year'].map(view => (
+            <button
+              key={view}
+              className={`view-toggle-btn ${timelineView === view ? 'active' : ''}`}
+              onClick={() => setTimelineView(view)}
+            >
+              {view.charAt(0).toUpperCase() + view.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Excel-like Timeline Table */}
       {loadingEpics ? (
-        <div className="project-timeline-section">
-          <div className="timeline-header">
-            <h3>Project Timeline</h3>
-            <div className="timeline-info">
-              <span className="timeline-duration">Loading...</span>
-            </div>
-          </div>
-          <div className="timeline-loading">
-            <div className="loading-bar"></div>
-          </div>
+        <div className="timeline-loading">
+          <div className="loading-bar"></div>
         </div>
       ) : projectTimeline ? (
-        <div className="project-timeline-section">
-          <div className="timeline-header">
-            <h3>Project Timeline</h3>
-            <div className="timeline-info">
-              <span className="timeline-duration">{projectTimeline.duration} days</span>
-            </div>
-          </div>
+        <div className="excel-timeline-container">
+          <h4>Project Timeline & Resource Allocation</h4>
           
-          {/* Timeline View Toggle */}
-          <div className="timeline-view-controls">
-            <div className="view-toggle-group">
-              {['day', 'week', 'month', 'year'].map(view => (
-                <button
-                  key={view}
-                  className={`view-toggle-btn ${timelineView === view ? 'active' : ''}`}
-                  onClick={() => setTimelineView(view)}
-                >
-                  {view.charAt(0).toUpperCase() + view.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className="synchronized-timeline-table-container">
-            <h4>Project & Team Timeline</h4>
-            
-            {/* Project Row - Always First */}
-            <div className="project-timeline-row">
-              <div className="project-name-cell">{selectedProject.name} ({selectedProject.key})</div>
-              <div className="project-timeline-cell">
-                <ContinuousProjectBar timeline={projectTimeline} viewMode={timelineView} />
-              </div>
-            </div>
-            
-            <Droppable droppableId={`project-${selectedProject.id}`}>
-              {(provided, snapshot) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className={`synchronized-timeline-table ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
-                >
-                  {/* Timeline Header Row */}
-                  <div className="sync-timeline-header-row">
-                    <div className="sync-user-name-column">Team Member</div>
-                    <div className="sync-timeline-scale-column">
-                      <ContinuousTimelineHeader timeline={projectTimeline} viewMode={timelineView} />
+          <Droppable droppableId={`project-${selectedProject.id}`}>
+            {(provided, snapshot) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className={`excel-timeline-table ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
+              >
+                {/* Timeline Header Row */}
+                <div className="timeline-header-row">
+                  <div className="timeline-name-column">
+                    <strong>Resource / Timeline</strong>
+                  </div>
+                  <div className="timeline-scale-column">
+                    <ExcelTimelineHeader timeline={projectTimeline} viewMode={timelineView} />
+                  </div>
+                </div>
+                
+                {/* Project Timeline Row */}
+                <div className="timeline-project-row">
+                  <div className="timeline-name-column">
+                    <div className="project-timeline-info">
+                      <span className="project-name-timeline">{selectedProject.name}</span>
+                      <span className="project-key-timeline">({selectedProject.key})</span>
                     </div>
                   </div>
-                  
-                  {/* User Timeline Rows with Drag & Drop */}
-                  <div className="sync-timeline-body">
-                    {assignedUsers.map((item, index) => {
-                      const user = item.user || item;
-                      const startDate = item.startDate || null;
-                      const endDate = item.endDate || null;
-                      
-                      if (!user || !user.id || !startDate || !endDate) return null;
-                      
-                      return (
-                        <Draggable key={user.id} draggableId={`timeline-user-${user.id}`} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`draggable-timeline-row ${snapshot.isDragging ? 'dragging' : ''}`}
-                            >
-                              <div className="sync-user-name-column">
-                                <div className="user-info-inline">
-                                  <span className="user-name-inline">{user.name}</span>
-                                  <span className="user-role-inline">({user.role})</span>
-                                  <button
-                                    className="remove-user-btn-inline"
-                                    onClick={() => onRemoveUser(selectedProject.id, user.id)}
-                                    title="Remove user from project"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              </div>
-                              <div className="sync-timeline-scale-column">
-                                <ContinuousUserBar
-                                  user={user}
-                                  startDate={startDate}
-                                  endDate={endDate}
-                                  projectTimeline={projectTimeline}
-                                  viewMode={timelineView}
-                                  isEndingSoon={isAssignmentEndingSoon(endDate)}
-                                  hasEnded={hasAssignmentEnded(endDate)}
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                    
-                    {assignedUsers.length === 0 && (
-                      <div className="empty-sync-timeline-table">
-                        <div className="sync-user-name-column">No users assigned</div>
-                        <div className="sync-timeline-scale-column">
-                          <div className="empty-sync-timeline-message">Drop users here to assign them to this project</div>
-                        </div>
-                      </div>
-                    )}
+                  <div className="timeline-scale-column">
+                    <ExcelProjectBar timeline={projectTimeline} viewMode={timelineView} />
                   </div>
-                  {provided.placeholder}
                 </div>
-              )}
-            </Droppable>
-          </div>
+                
+                {/* User Timeline Rows */}
+                <div className="timeline-users-body">
+                  {dummyUsers.map((user, index) => (
+                    <Draggable key={user.id} draggableId={`timeline-user-${user.id}`} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={`timeline-user-row ${snapshot.isDragging ? 'dragging' : ''}`}
+                        >
+                          <div className="timeline-name-column">
+                            <div className="user-timeline-info">
+                              <span className="user-name-timeline">{user.name}</span>
+                              <span className="user-role-timeline">{user.role}</span>
+                              <span className="user-dates-timeline">
+                                {formatDate(user.startDate)} - {formatDate(user.endDate)}
+                              </span>
+                            </div>
+                            <button
+                              className="remove-user-btn"
+                              onClick={() => console.log('Remove user:', user.id)}
+                              title="Remove user from project"
+                            >
+                              ×
+                            </button>
+                          </div>
+                          <div className="timeline-scale-column">
+                            <ExcelUserBar
+                              user={user}
+                              startDate={user.startDate}
+                              endDate={user.endDate}
+                              projectTimeline={projectTimeline}
+                              viewMode={timelineView}
+                              isEndingSoon={isAssignmentEndingSoon(user.endDate)}
+                              hasEnded={hasAssignmentEnded(user.endDate)}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  
+                  {dummyUsers.length === 0 && (
+                    <div className="empty-timeline-row">
+                      <div className="timeline-name-column">No users assigned</div>
+                      <div className="timeline-scale-column">
+                        <div className="empty-timeline-message">Drop users here to assign them to this project</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
         </div>
-      ) : selectedProject && epics.length === 0 ? (
-        <div className="project-timeline-section">
-          <div className="timeline-header">
-            <h3>Project Timeline</h3>
-          </div>
-          <div className="no-timeline">
-            <span>No epics found to calculate timeline</span>
-          </div>
+      ) : (
+        <div className="no-timeline">
+          <span>No timeline data available</span>
         </div>
-      ) : null}
+      )}
 
       <DatePickerModal
         isOpen={showDateModal}
@@ -277,8 +262,8 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
   );
 };
 
-// Continuous Timeline Header Component
-const ContinuousTimelineHeader = ({ timeline, viewMode }) => {
+// Excel Timeline Header Component
+const ExcelTimelineHeader = ({ timeline, viewMode }) => {
   const generateTimelineColumns = () => {
     const startDate = new Date(timeline.startDate + 'T12:00:00');
     const endDate = new Date(timeline.endDate + 'T12:00:00');
@@ -297,12 +282,15 @@ const ContinuousTimelineHeader = ({ timeline, viewMode }) => {
             monthIndex++;
           }
           
+          const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+          
           columns.push({
             date: new Date(currentDate),
             label: currentDate.getDate().toString(),
             month: monthYear,
             monthIndex: monthIndex,
-            colorGroup: monthIndex % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: monthIndex % 2 === 1 ? 'primary' : 'secondary',
+            isWeekend: isWeekend
           });
           currentDate.setDate(currentDate.getDate() + 1);
         }
@@ -324,7 +312,7 @@ const ContinuousTimelineHeader = ({ timeline, viewMode }) => {
             date: new Date(currentDate),
             label: `W${weekNum}`,
             month: weekMonth,
-            colorGroup: weekMonthIndex % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: weekMonthIndex % 2 === 1 ? 'primary' : 'secondary'
           });
           
           weekNum++;
@@ -339,7 +327,7 @@ const ContinuousTimelineHeader = ({ timeline, viewMode }) => {
           columns.push({
             date: new Date(currentDate),
             label: currentDate.toLocaleDateString(undefined, { month: 'short' }),
-            colorGroup: monthCounter % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: monthCounter % 2 === 1 ? 'primary' : 'secondary'
           });
           currentDate.setMonth(currentDate.getMonth() + 1);
         }
@@ -352,7 +340,7 @@ const ContinuousTimelineHeader = ({ timeline, viewMode }) => {
           columns.push({
             date: new Date(currentDate),
             label: currentDate.getFullYear().toString(),
-            colorGroup: yearCounter % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: yearCounter % 2 === 1 ? 'primary' : 'secondary'
           });
           currentDate.setFullYear(currentDate.getFullYear() + 1);
         }
@@ -368,11 +356,12 @@ const ContinuousTimelineHeader = ({ timeline, viewMode }) => {
   const columns = generateTimelineColumns();
   
   return (
-    <div className="continuous-timeline-header">
+    <div className="excel-timeline-header">
       {columns.map((col, index) => (
         <div 
           key={index} 
-          className={`timeline-header-cell ${col.colorGroup}`}
+          className={`timeline-header-cell ${col.colorGroup} ${col.isWeekend ? 'weekend' : ''}`}
+          title={col.month}
         >
           {col.label}
         </div>
@@ -381,8 +370,8 @@ const ContinuousTimelineHeader = ({ timeline, viewMode }) => {
   );
 };
 
-// Continuous Project Bar Component
-const ContinuousProjectBar = ({ timeline, viewMode }) => {
+// Excel Project Bar Component
+const ExcelProjectBar = ({ timeline, viewMode }) => {
   const generateProjectCells = () => {
     const startDate = new Date(timeline.startDate + 'T12:00:00');
     const endDate = new Date(timeline.endDate + 'T12:00:00');
@@ -401,9 +390,12 @@ const ContinuousProjectBar = ({ timeline, viewMode }) => {
             monthIndex++;
           }
           
+          const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+          
           cells.push({
             date: new Date(currentDate),
-            colorGroup: monthIndex % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: monthIndex % 2 === 1 ? 'primary' : 'secondary',
+            isWeekend: isWeekend
           });
           currentDate.setDate(currentDate.getDate() + 1);
         }
@@ -422,7 +414,7 @@ const ContinuousProjectBar = ({ timeline, viewMode }) => {
           
           cells.push({
             date: new Date(currentDate),
-            colorGroup: weekMonthIndex % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: weekMonthIndex % 2 === 1 ? 'primary' : 'secondary'
           });
           
           currentDate.setDate(currentDate.getDate() + 7);
@@ -435,7 +427,7 @@ const ContinuousProjectBar = ({ timeline, viewMode }) => {
           monthCounter++;
           cells.push({
             date: new Date(currentDate),
-            colorGroup: monthCounter % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: monthCounter % 2 === 1 ? 'primary' : 'secondary'
           });
           currentDate.setMonth(currentDate.getMonth() + 1);
         }
@@ -447,7 +439,7 @@ const ContinuousProjectBar = ({ timeline, viewMode }) => {
           yearCounter++;
           cells.push({
             date: new Date(currentDate),
-            colorGroup: yearCounter % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: yearCounter % 2 === 1 ? 'primary' : 'secondary'
           });
           currentDate.setFullYear(currentDate.getFullYear() + 1);
         }
@@ -463,11 +455,11 @@ const ContinuousProjectBar = ({ timeline, viewMode }) => {
   const cells = generateProjectCells();
   
   return (
-    <div className="continuous-project-bar">
+    <div className="excel-project-bar">
       {cells.map((cell, index) => (
         <div 
           key={index} 
-          className={`project-timeline-cell ${cell.colorGroup}`}
+          className={`project-timeline-cell ${cell.colorGroup} ${cell.isWeekend ? 'weekend' : ''}`}
         >
           <div className="project-bar-fill"></div>
         </div>
@@ -476,8 +468,8 @@ const ContinuousProjectBar = ({ timeline, viewMode }) => {
   );
 };
 
-// Continuous User Bar Component
-const ContinuousUserBar = ({ user, startDate, endDate, projectTimeline, viewMode, isEndingSoon, hasEnded }) => {
+// Excel User Bar Component
+const ExcelUserBar = ({ user, startDate, endDate, projectTimeline, viewMode, isEndingSoon, hasEnded }) => {
   const projectStart = new Date(projectTimeline.startDate + 'T12:00:00');
   const projectEnd = new Date(projectTimeline.endDate + 'T12:00:00');
   const userStart = new Date(startDate + 'T12:00:00');
@@ -502,11 +494,13 @@ const ContinuousUserBar = ({ user, startDate, endDate, projectTimeline, viewMode
           }
           
           const isUserActive = currentDate >= userStart && currentDate <= userEnd;
+          const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
           
           cells.push({
             date: new Date(currentDate),
             isActive: isUserActive,
-            colorGroup: monthIndex % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: monthIndex % 2 === 1 ? 'primary' : 'secondary',
+            isWeekend: isWeekend
           });
           currentDate.setDate(currentDate.getDate() + 1);
         }
@@ -530,7 +524,7 @@ const ContinuousUserBar = ({ user, startDate, endDate, projectTimeline, viewMode
           cells.push({
             date: new Date(currentDate),
             isActive: isUserActive,
-            colorGroup: weekMonthIndex % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: weekMonthIndex % 2 === 1 ? 'primary' : 'secondary'
           });
           
           currentDate.setDate(currentDate.getDate() + 7);
@@ -547,7 +541,7 @@ const ContinuousUserBar = ({ user, startDate, endDate, projectTimeline, viewMode
           cells.push({
             date: new Date(currentDate),
             isActive: isUserActive,
-            colorGroup: monthCounter % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: monthCounter % 2 === 1 ? 'primary' : 'secondary'
           });
           currentDate.setMonth(currentDate.getMonth() + 1);
         }
@@ -563,7 +557,7 @@ const ContinuousUserBar = ({ user, startDate, endDate, projectTimeline, viewMode
           cells.push({
             date: new Date(currentDate),
             isActive: isUserActive,
-            colorGroup: yearCounter % 2 === 1 ? 'month-1' : 'month-2'
+            colorGroup: yearCounter % 2 === 1 ? 'primary' : 'secondary'
           });
           currentDate.setFullYear(currentDate.getFullYear() + 1);
         }
@@ -578,7 +572,7 @@ const ContinuousUserBar = ({ user, startDate, endDate, projectTimeline, viewMode
 
   const cells = generateUserCells();
   
-  let barClass = 'continuous-user-bar';
+  let barClass = 'excel-user-bar';
   if (isEndingSoon) {
     barClass += ' ending-soon';
   } else if (hasEnded) {
@@ -590,13 +584,27 @@ const ContinuousUserBar = ({ user, startDate, endDate, projectTimeline, viewMode
       {cells.map((cell, index) => (
         <div 
           key={index} 
-          className={`user-timeline-cell ${cell.colorGroup} ${cell.isActive ? 'active' : ''}`}
+          className={`user-timeline-cell ${cell.colorGroup} ${cell.isActive ? 'active' : ''} ${cell.isWeekend ? 'weekend' : ''}`}
         >
-          {cell.isActive && <div className="user-bar-fill"></div>}
+          {cell.isActive && (
+            <div className="user-bar-segment">
+              <div className="user-bar-tooltip">
+                <div className="tooltip-name">{user.name}</div>
+                <div className="tooltip-role">{user.role}</div>
+                <div className="tooltip-dates">{formatDate(startDate)} - {formatDate(endDate)}</div>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>
   );
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 export default MiddlePanel;
