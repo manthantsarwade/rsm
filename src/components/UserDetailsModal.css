@@ -1,0 +1,103 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c5282;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #4a5568;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.assignments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.assignment-item {
+  padding: 15px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.assignment-item:last-child {
+  border-bottom: none;
+}
+
+.assignment-project {
+  font-size: 1rem;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.project-lead {
+  font-size: 0.85rem;
+  color: #718096;
+  margin-left: 10px;
+}
+
+.assignment-epic {
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.assignment-project {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.project-lead {
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: normal;
+  margin-left: 0;
+}
+
+.assignment-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+  color: #4a5568;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "hr-resource-manager-forge",
+  "version": "1.0.0",
+  "description": "HR Resource Manager Jira Forge App",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "forge build",
+    "deploy": "forge deploy",
+    "install": "forge install",
+    "tunnel": "forge tunnel"
+  },
+  "dependencies": {
+    "@forge/api": "^3.0.0",
+    "@forge/ui": "^1.0.0"
+  },
+  "devDependencies": {
+    "@forge/cli": "^6.0.0"
+  },
+  "author": "HR Team",
+  "license": "MIT"
+}

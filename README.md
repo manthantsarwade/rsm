@@ -1,70 +1,189 @@
-# Getting Started with Create React App
+# HR Resource Manager
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, colorful React application for managing HR resources, projects, and team assignments with Jira integration.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Three-Panel Layout**: 
+  - Left Panel: Available users with drag-and-drop functionality
+  - Middle Panel: Project epics with calendar view and user assignments
+  - Right Panel: Projects list with details and progress tracking
 
-### `npm start`
+- **Jira Integration**: 
+  - Fetch users, projects, and epics from Jira API
+  - Sync assignments back to Jira
+  - Real-time data synchronization
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Modern UI**:
+  - Colorful gradient backgrounds
+  - Glass morphism effects
+  - Smooth animations and transitions
+  - Responsive design
+  - Drag and drop functionality
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Resource Management**:
+  - Visual user assignment to epics
+  - Timeline tracking with calendar view
+  - Automatic availability detection
+  - Excel-like data management
 
-### `npm test`
+## Setup Instructions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 1. Install Dependencies
 
-### `npm run build`
+```bash
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Configure Jira API
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Update the `.env` file with your Jira credentials:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```env
+REACT_APP_JIRA_BASE_URL=https://your-domain.atlassian.net
+REACT_APP_JIRA_EMAIL=your-email@company.com
+REACT_APP_JIRA_API_TOKEN=your-api-token
+REACT_APP_JIRA_PROJECT_KEY=your-project-key
+```
 
-### `npm run eject`
+To get your Jira API token:
+1. Go to https://id.atlassian.com/manage-profile/security/api-tokens
+2. Create a new API token
+3. Copy the token to your `.env` file
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 3. Run the Application
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The application will open at `http://localhost:3000`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Usage Guide
 
-## Learn More
+### Initial Setup
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. **Configure Jira API**: Add your Jira credentials to the `.env` file
+2. **Import Excel Data**: For the first run, manually assign employees to epics based on your Excel sheet
+3. **Save Assignments**: All assignments are automatically saved to localStorage
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Managing Resources
 
-### Code Splitting
+1. **Select a Project**: Click on a project in the right panel to view its epics
+2. **Assign Users**: Drag users from the left panel to epics in the middle panel
+3. **View Calendar**: Use the horizontal calendar to see timeline planning
+4. **Remove Assignments**: Click the 'x' button on assigned users to remove them
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Features Overview
 
-### Analyzing the Bundle Size
+#### Left Panel - Available Users
+- Shows all users currently available for assignment
+- Users appear here when their current assignments end
+- Drag users to assign them to epics
+- Shows user role, availability dates, and status
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+#### Middle Panel - Epics & Calendar
+- Displays epics for the selected project
+- Horizontal calendar view for timeline planning
+- Drop zones for user assignments
+- Remove users from assignments
 
-### Making a Progressive Web App
+#### Right Panel - Projects
+- Lists all projects with details
+- Shows project timeline and progress
+- Click to select and view project epics
+- Project lead and status information
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Data Management
 
-### Advanced Configuration
+- **Local Storage**: All assignments are saved automatically
+- **Jira Sync**: Use the sync button to update Jira with assignments
+- **Export/Import**: Data can be exported and imported as needed
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Technical Details
 
-### Deployment
+### Dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- **React 19**: Core framework
+- **@hello-pangea/dnd**: Drag and drop functionality
+- **axios**: HTTP client for Jira API
+- **date-fns**: Date manipulation and formatting
+- **react-calendar**: Calendar component
 
-### `npm run build` fails to minify
+### File Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+src/
+├── components/
+│   ├── LeftPanel.js       # Available users panel
+│   ├── MiddlePanel.js     # Epics and calendar panel
+│   └── RightPanel.js      # Projects panel
+├── services/
+│   ├── jiraAPI.js         # Jira API integration
+│   └── storageService.js  # Local storage management
+├── App.js                 # Main application component
+└── App.css                # Global styles
+```
+
+### Styling
+
+- **CSS Gradients**: Modern gradient backgrounds
+- **Flexbox Layout**: Responsive three-panel design
+- **Custom Scrollbars**: Styled scrollbars for better UX
+- **Animations**: Smooth transitions and hover effects
+- **Glass Morphism**: Translucent glass-like elements
+
+## Development
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+### Running Tests
+
+```bash
+npm test
+```
+
+### Code Quality
+
+The application follows React best practices:
+- Functional components with hooks
+- Proper state management
+- Error handling
+- Responsive design
+- Accessibility considerations
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Jira API Connection Error**:
+   - Check your API credentials in `.env`
+   - Ensure your Jira domain is correct
+   - Verify API token permissions
+
+2. **Users Not Loading**:
+   - Application will show mock data if Jira API fails
+   - Check browser console for error messages
+
+3. **Drag and Drop Not Working**:
+   - Ensure users are available (not already assigned)
+   - Check that epic drop zones are properly configured
+
+### Support
+
+For issues or questions, check the browser console for error messages and ensure all dependencies are properly installed.
+
+## Future Enhancements
+
+- [ ] Real-time collaboration with WebSocket
+- [ ] Email notifications for assignments
+- [ ] Advanced reporting and analytics
+- [ ] Mobile app version
+- [ ] Integration with other project management tools
+- [ ] Automated workload balancing
+- [ ] Time tracking integration
+- [ ] Approval workflows

@@ -1,0 +1,146 @@
+/* Export Panel Styles */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Header Actions Styles */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.refresh-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: linear-gradient(135deg, #5a6268, #495057);
+  transform: translateY(-1px);
+}
+
+.export-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.export-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.assignments-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.assignments-btn:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+}
+
+.mappings-btn {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  color: white;
+}
+
+.mappings-btn:hover {
+  background: linear-gradient(135deg, #1976D2, #1565C0);
+}
+
+.all-btn {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  color: white;
+}
+
+.all-btn:hover {
+  background: linear-gradient(135deg, #F57C00, #E65100);
+}
+
+.export-btn:active {
+  transform: translateY(0);
+}
+
+.export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .export-buttons {
+    justify-content: center;
+  }
+  
+  .export-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+
+/* Loading state */
+.export-btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.export-btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Success feedback */
+.export-success {
+  background: #4CAF50 !important;
+  color: white;
+}
+
+.export-success::before {
+  content: '✓ ';
+}

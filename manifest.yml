@@ -1,0 +1,21 @@
+modules:
+  jira:globalPage:
+    - key: hr-resource-manager-global-page
+      function: main
+      title: HR Resource Manager
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-16.svg
+  function:
+    - key: main
+      handler: index.handler
+app:
+  id: ari:cloud:ecosystem::app/hr-resource-manager
+permissions:
+  scopes:
+    - read:jira-user
+    - read:jira-work
+    - write:jira-work
+    - storage:app
+  external:
+    fetch:
+      backend:
+        - '*.atlassian.net'
