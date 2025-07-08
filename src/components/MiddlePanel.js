@@ -10,7 +10,7 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
   const [loadingEpics, setLoadingEpics] = useState(false);
   const [timelineView, setTimelineView] = useState('day'); // day, week, month, year
 
-  // Dummy data for testing
+  // DUMMY DATA FOR TESTING - Replace with real data later
   const dummyProjectTimeline = {
     startDate: '2024-07-05',
     endDate: '2024-08-30',
@@ -52,7 +52,7 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
     }
   ];
 
-  // Function to check if user assignment is ending soon (3 days)
+  // Helper functions
   const isAssignmentEndingSoon = (endDate) => {
     if (!endDate) return false;
     const today = new Date();
@@ -62,7 +62,6 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
     return diffDays <= 3 && diffDays > 0;
   };
 
-  // Function to check if user assignment has ended
   const hasAssignmentEnded = (endDate) => {
     if (!endDate) return false;
     const today = new Date();
@@ -72,37 +71,22 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
 
   useEffect(() => {
     if (selectedProject) {
-      fetchEpicsAndCalculateTimeline();
-    } else {
-      setEpics([]);
-      setProjectTimeline(null);
-    }
-  }, [selectedProject]);
-
-  const fetchEpicsAndCalculateTimeline = async () => {
-    if (!selectedProject) return;
-    
-    try {
-      setLoadingEpics(true);
-      // For demo, use dummy timeline
+      // For demo, use dummy data
       setProjectTimeline(dummyProjectTimeline);
-      
-      // Update parent component with timeline data
       if (onUpdateProjectTimeline) {
         onUpdateProjectTimeline(selectedProject.id, dummyProjectTimeline);
       }
-    } catch (error) {
-      console.error('Error fetching epics:', error);
-    } finally {
-      setLoadingEpics(false);
+    } else {
+      setProjectTimeline(null);
     }
-  };
+  }, [selectedProject]);
 
   const handleDateAssignment = (assignmentData) => {
     onAssignUserWithDates(assignmentData);
     onCloseDateModal();
   };
 
+  // Show empty state if no project selected
   if (!selectedProject) {
     return (
       <div className="middle-panel">
@@ -117,19 +101,11 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
 
   return (
     <div className="middle-panel">
+      {/* Header Section */}
       <div className="middle-header">
         <div className="project-info">
           <h2>{selectedProject.name}</h2>
           <span className="project-key">{selectedProject.key}</span>
-        </div>
-        <div className="header-actions">
-          {selectedUser && (
-            <div className="selected-user-info">
-              <span className="selected-label">Selected:</span>
-              <span className="selected-name">{selectedUser.name}</span>
-              <button className="clear-selection-btn" onClick={onClearSelectedUser}>×</button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -148,93 +124,66 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
         </div>
       </div>
 
-      {/* Excel-like Timeline Table */}
-      {loadingEpics ? (
-        <div className="timeline-loading">
-          <div className="loading-bar"></div>
-        </div>
-      ) : projectTimeline ? (
-        <div className="excel-timeline-container">
-          <h4>Project Timeline & Resource Allocation</h4>
+      {/* Main Timeline Container */}
+      {projectTimeline ? (
+        <div className="timeline-container">
+          <h4>Resource Timeline</h4>
           
           <Droppable droppableId={`project-${selectedProject.id}`}>
             {(provided, snapshot) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`excel-timeline-table ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
+                className={`timeline-table ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
               >
-                {/* Timeline Header Row */}
-                <div className="timeline-header-row">
-                  <div className="timeline-name-column">
-                    <strong>Resource / Timeline</strong>
-                  </div>
-                  <div className="timeline-scale-column">
-                    <ExcelTimelineHeader timeline={projectTimeline} viewMode={timelineView} />
-                  </div>
-                </div>
+                {/* Timeline Header with Dates */}
+                <TimelineHeader timeline={projectTimeline} viewMode={timelineView} />
                 
-                {/* Project Timeline Row */}
-                <div className="timeline-project-row">
-                  <div className="timeline-name-column">
-                    <div className="project-timeline-info">
-                      <span className="project-name-timeline">{selectedProject.name}</span>
-                      <span className="project-key-timeline">({selectedProject.key})</span>
-                    </div>
-                  </div>
-                  <div className="timeline-scale-column">
-                    <ExcelProjectBar timeline={projectTimeline} viewMode={timelineView} />
-                  </div>
-                </div>
-                
-                {/* User Timeline Rows */}
-                <div className="timeline-users-body">
+                {/* User Rows */}
+                <div className="timeline-body">
                   {dummyUsers.map((user, index) => (
-                    <Draggable key={user.id} draggableId={`timeline-user-${user.id}`} index={index}>
+                    <Draggable key={user.id} draggableId={`user-${user.id}`} index={index}>
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`timeline-user-row ${snapshot.isDragging ? 'dragging' : ''}`}
+                          className={`timeline-row ${snapshot.isDragging ? 'dragging' : ''}`}
                         >
-                          <div className="timeline-name-column">
-                            <div className="user-timeline-info">
-                              <span className="user-name-timeline">{user.name}</span>
-                              <span className="user-role-timeline">{user.role}</span>
-                              <span className="user-dates-timeline">
-                                {formatDate(user.startDate)} - {formatDate(user.endDate)}
-                              </span>
+                          {/* User Name Column */}
+                          <div className="user-name-column">
+                            <div className="user-info">
+                              <span className="user-name">{user.name}</span>
+                              <span className="user-role">{user.role}</span>
                             </div>
                             <button
-                              className="remove-user-btn"
+                              className="remove-btn"
                               onClick={() => console.log('Remove user:', user.id)}
-                              title="Remove user from project"
+                              title="Remove user"
                             >
                               ×
                             </button>
                           </div>
-                          <div className="timeline-scale-column">
-                            <ExcelUserBar
-                              user={user}
-                              startDate={user.startDate}
-                              endDate={user.endDate}
-                              projectTimeline={projectTimeline}
-                              viewMode={timelineView}
-                              isEndingSoon={isAssignmentEndingSoon(user.endDate)}
-                              hasEnded={hasAssignmentEnded(user.endDate)}
-                            />
-                          </div>
+                          
+                          {/* Timeline Columns for this User */}
+                          <UserTimelineColumns
+                            user={user}
+                            projectTimeline={projectTimeline}
+                            viewMode={timelineView}
+                            isEndingSoon={isAssignmentEndingSoon(user.endDate)}
+                            hasEnded={hasAssignmentEnded(user.endDate)}
+                          />
                         </div>
                       )}
                     </Draggable>
                   ))}
                   
+                  {/* Empty State */}
                   {dummyUsers.length === 0 && (
                     <div className="empty-timeline-row">
-                      <div className="timeline-name-column">No users assigned</div>
-                      <div className="timeline-scale-column">
-                        <div className="empty-timeline-message">Drop users here to assign them to this project</div>
+                      <div className="user-name-column">No users assigned</div>
+                      <div className="timeline-columns">
+                        <div className="drop-message">Drop users here to assign them</div>
                       </div>
                     </div>
                   )}
@@ -250,6 +199,7 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
         </div>
       )}
 
+      {/* Date Picker Modal */}
       <DatePickerModal
         isOpen={showDateModal}
         onClose={onCloseDateModal}
@@ -262,35 +212,23 @@ const MiddlePanel = ({ selectedProject, assignments, onRemoveUser, onAssignUserW
   );
 };
 
-// Excel Timeline Header Component
-const ExcelTimelineHeader = ({ timeline, viewMode }) => {
-  const generateTimelineColumns = () => {
+// Timeline Header Component - Shows dates/periods
+const TimelineHeader = ({ timeline, viewMode }) => {
+  const generateColumns = () => {
     const startDate = new Date(timeline.startDate + 'T12:00:00');
     const endDate = new Date(timeline.endDate + 'T12:00:00');
     const columns = [];
-    
     const currentDate = new Date(startDate);
     
     switch (viewMode) {
       case 'day':
-        let monthIndex = 0;
-        let currentMonth = null;
         while (currentDate <= endDate) {
-          const monthYear = currentDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-          if (currentMonth !== monthYear) {
-            currentMonth = monthYear;
-            monthIndex++;
-          }
-          
           const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
-          
           columns.push({
             date: new Date(currentDate),
             label: currentDate.getDate().toString(),
-            month: monthYear,
-            monthIndex: monthIndex,
-            colorGroup: monthIndex % 2 === 1 ? 'primary' : 'secondary',
-            isWeekend: isWeekend
+            fullDate: currentDate.toLocaleDateString(),
+            isWeekend
           });
           currentDate.setDate(currentDate.getDate() + 1);
         }
@@ -298,300 +236,157 @@ const ExcelTimelineHeader = ({ timeline, viewMode }) => {
         
       case 'week':
         let weekNum = 1;
-        let weekMonthIndex = 0;
-        let currentWeekMonth = null;
         while (currentDate <= endDate) {
-          const weekMonth = currentDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-          
-          if (currentWeekMonth !== weekMonth) {
-            currentWeekMonth = weekMonth;
-            weekMonthIndex++;
-          }
-          
           columns.push({
             date: new Date(currentDate),
             label: `W${weekNum}`,
-            month: weekMonth,
-            colorGroup: weekMonthIndex % 2 === 1 ? 'primary' : 'secondary'
+            fullDate: `Week ${weekNum}`
           });
-          
           weekNum++;
           currentDate.setDate(currentDate.getDate() + 7);
         }
         break;
         
       case 'month':
-        let monthCounter = 0;
         while (currentDate <= endDate) {
-          monthCounter++;
           columns.push({
             date: new Date(currentDate),
             label: currentDate.toLocaleDateString(undefined, { month: 'short' }),
-            colorGroup: monthCounter % 2 === 1 ? 'primary' : 'secondary'
+            fullDate: currentDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
           });
           currentDate.setMonth(currentDate.getMonth() + 1);
         }
         break;
         
       case 'year':
-        let yearCounter = 0;
         while (currentDate <= endDate) {
-          yearCounter++;
           columns.push({
             date: new Date(currentDate),
             label: currentDate.getFullYear().toString(),
-            colorGroup: yearCounter % 2 === 1 ? 'primary' : 'secondary'
+            fullDate: currentDate.getFullYear().toString()
           });
           currentDate.setFullYear(currentDate.getFullYear() + 1);
         }
         break;
-        
-      default:
-        return [];
     }
     
     return columns;
   };
 
-  const columns = generateTimelineColumns();
+  const columns = generateColumns();
   
   return (
-    <div className="excel-timeline-header">
-      {columns.map((col, index) => (
-        <div 
-          key={index} 
-          className={`timeline-header-cell ${col.colorGroup} ${col.isWeekend ? 'weekend' : ''}`}
-          title={col.month}
-        >
-          {col.label}
-        </div>
-      ))}
+    <div className="timeline-header">
+      {/* First column for user names */}
+      <div className="header-name-column">
+        <strong>Team Member</strong>
+      </div>
+      
+      {/* Date columns */}
+      <div className="header-date-columns">
+        {columns.map((col, index) => (
+          <div 
+            key={index} 
+            className={`date-column ${col.isWeekend ? 'weekend' : ''}`}
+            title={col.fullDate}
+          >
+            {col.label}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-// Excel Project Bar Component
-const ExcelProjectBar = ({ timeline, viewMode }) => {
-  const generateProjectCells = () => {
-    const startDate = new Date(timeline.startDate + 'T12:00:00');
-    const endDate = new Date(timeline.endDate + 'T12:00:00');
-    const cells = [];
-    
-    const currentDate = new Date(startDate);
-    
-    switch (viewMode) {
-      case 'day':
-        let monthIndex = 0;
-        let currentMonth = null;
-        while (currentDate <= endDate) {
-          const monthYear = currentDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-          if (currentMonth !== monthYear) {
-            currentMonth = monthYear;
-            monthIndex++;
-          }
-          
-          const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
-          
-          cells.push({
-            date: new Date(currentDate),
-            colorGroup: monthIndex % 2 === 1 ? 'primary' : 'secondary',
-            isWeekend: isWeekend
-          });
-          currentDate.setDate(currentDate.getDate() + 1);
-        }
-        break;
-        
-      case 'week':
-        let weekMonthIndex = 0;
-        let currentWeekMonth = null;
-        while (currentDate <= endDate) {
-          const weekMonth = currentDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-          
-          if (currentWeekMonth !== weekMonth) {
-            currentWeekMonth = weekMonth;
-            weekMonthIndex++;
-          }
-          
-          cells.push({
-            date: new Date(currentDate),
-            colorGroup: weekMonthIndex % 2 === 1 ? 'primary' : 'secondary'
-          });
-          
-          currentDate.setDate(currentDate.getDate() + 7);
-        }
-        break;
-        
-      case 'month':
-        let monthCounter = 0;
-        while (currentDate <= endDate) {
-          monthCounter++;
-          cells.push({
-            date: new Date(currentDate),
-            colorGroup: monthCounter % 2 === 1 ? 'primary' : 'secondary'
-          });
-          currentDate.setMonth(currentDate.getMonth() + 1);
-        }
-        break;
-        
-      case 'year':
-        let yearCounter = 0;
-        while (currentDate <= endDate) {
-          yearCounter++;
-          cells.push({
-            date: new Date(currentDate),
-            colorGroup: yearCounter % 2 === 1 ? 'primary' : 'secondary'
-          });
-          currentDate.setFullYear(currentDate.getFullYear() + 1);
-        }
-        break;
-        
-      default:
-        return [];
-    }
-    
-    return cells;
-  };
-
-  const cells = generateProjectCells();
+// User Timeline Columns Component - Shows user's timeline bars
+const UserTimelineColumns = ({ user, projectTimeline, viewMode, isEndingSoon, hasEnded }) => {
+  const userStart = new Date(user.startDate + 'T12:00:00');
+  const userEnd = new Date(user.endDate + 'T12:00:00');
   
-  return (
-    <div className="excel-project-bar">
-      {cells.map((cell, index) => (
-        <div 
-          key={index} 
-          className={`project-timeline-cell ${cell.colorGroup} ${cell.isWeekend ? 'weekend' : ''}`}
-        >
-          <div className="project-bar-fill"></div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// Excel User Bar Component
-const ExcelUserBar = ({ user, startDate, endDate, projectTimeline, viewMode, isEndingSoon, hasEnded }) => {
-  const projectStart = new Date(projectTimeline.startDate + 'T12:00:00');
-  const projectEnd = new Date(projectTimeline.endDate + 'T12:00:00');
-  const userStart = new Date(startDate + 'T12:00:00');
-  const userEnd = new Date(endDate + 'T12:00:00');
-  
-  const generateUserCells = () => {
+  const generateColumns = () => {
     const startDate = new Date(projectTimeline.startDate + 'T12:00:00');
     const endDate = new Date(projectTimeline.endDate + 'T12:00:00');
-    const cells = [];
-    
+    const columns = [];
     const currentDate = new Date(startDate);
     
     switch (viewMode) {
       case 'day':
-        let monthIndex = 0;
-        let currentMonth = null;
         while (currentDate <= endDate) {
-          const monthYear = currentDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-          if (currentMonth !== monthYear) {
-            currentMonth = monthYear;
-            monthIndex++;
-          }
-          
           const isUserActive = currentDate >= userStart && currentDate <= userEnd;
           const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
           
-          cells.push({
+          columns.push({
             date: new Date(currentDate),
             isActive: isUserActive,
-            colorGroup: monthIndex % 2 === 1 ? 'primary' : 'secondary',
-            isWeekend: isWeekend
+            isWeekend
           });
           currentDate.setDate(currentDate.getDate() + 1);
         }
         break;
         
       case 'week':
-        let weekMonthIndex = 0;
-        let currentWeekMonth = null;
         while (currentDate <= endDate) {
           const weekEnd = new Date(currentDate);
           weekEnd.setDate(weekEnd.getDate() + 6);
-          const weekMonth = currentDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-          
-          if (currentWeekMonth !== weekMonth) {
-            currentWeekMonth = weekMonth;
-            weekMonthIndex++;
-          }
-          
           const isUserActive = (userStart <= weekEnd && userEnd >= currentDate);
           
-          cells.push({
+          columns.push({
             date: new Date(currentDate),
-            isActive: isUserActive,
-            colorGroup: weekMonthIndex % 2 === 1 ? 'primary' : 'secondary'
+            isActive: isUserActive
           });
-          
           currentDate.setDate(currentDate.getDate() + 7);
         }
         break;
         
       case 'month':
-        let monthCounter = 0;
         while (currentDate <= endDate) {
-          monthCounter++;
           const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
           const isUserActive = (userStart <= monthEnd && userEnd >= currentDate);
           
-          cells.push({
+          columns.push({
             date: new Date(currentDate),
-            isActive: isUserActive,
-            colorGroup: monthCounter % 2 === 1 ? 'primary' : 'secondary'
+            isActive: isUserActive
           });
           currentDate.setMonth(currentDate.getMonth() + 1);
         }
         break;
         
       case 'year':
-        let yearCounter = 0;
         while (currentDate <= endDate) {
-          yearCounter++;
           const yearEnd = new Date(currentDate.getFullYear(), 11, 31);
           const isUserActive = (userStart <= yearEnd && userEnd >= currentDate);
           
-          cells.push({
+          columns.push({
             date: new Date(currentDate),
-            isActive: isUserActive,
-            colorGroup: yearCounter % 2 === 1 ? 'primary' : 'secondary'
+            isActive: isUserActive
           });
           currentDate.setFullYear(currentDate.getFullYear() + 1);
         }
         break;
-        
-      default:
-        return [];
     }
     
-    return cells;
+    return columns;
   };
 
-  const cells = generateUserCells();
+  const columns = generateColumns();
   
-  let barClass = 'excel-user-bar';
-  if (isEndingSoon) {
-    barClass += ' ending-soon';
-  } else if (hasEnded) {
-    barClass += ' assignment-ended';
-  }
+  let statusClass = '';
+  if (isEndingSoon) statusClass = 'ending-soon';
+  else if (hasEnded) statusClass = 'ended';
   
   return (
-    <div className={barClass}>
-      {cells.map((cell, index) => (
+    <div className={`user-timeline-columns ${statusClass}`}>
+      {columns.map((col, index) => (
         <div 
           key={index} 
-          className={`user-timeline-cell ${cell.colorGroup} ${cell.isActive ? 'active' : ''} ${cell.isWeekend ? 'weekend' : ''}`}
+          className={`timeline-cell ${col.isActive ? 'active' : ''} ${col.isWeekend ? 'weekend' : ''}`}
         >
-          {cell.isActive && (
-            <div className="user-bar-segment">
-              <div className="user-bar-tooltip">
-                <div className="tooltip-name">{user.name}</div>
-                <div className="tooltip-role">{user.role}</div>
-                <div className="tooltip-dates">{formatDate(startDate)} - {formatDate(endDate)}</div>
+          {col.isActive && (
+            <div className="user-bar">
+              <div className="bar-tooltip">
+                <div>{user.name}</div>
+                <div>{user.role}</div>
+                <div>{formatDate(user.startDate)} - {formatDate(user.endDate)}</div>
               </div>
             </div>
           )}
@@ -601,10 +396,11 @@ const ExcelUserBar = ({ user, startDate, endDate, projectTimeline, viewMode, isE
   );
 };
 
+// Helper function to format dates
 const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 };
 
 export default MiddlePanel;
